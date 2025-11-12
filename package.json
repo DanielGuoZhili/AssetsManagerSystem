@@ -1,0 +1,27 @@
+{
+  "name": "asset-manager-system",
+  "version": "1.0.0",
+  "description": "个人资产管理系统 - Monorepo 架构",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --filter frontend dev",
+    "build": "pnpm --filter frontend build",
+    "preview": "pnpm --filter frontend preview",
+    "install:all": "pnpm install"
+  },
+  "keywords": [
+    "asset-manager",
+    "react",
+    "antd",
+    "typescript",
+    "vite",
+    "monorepo"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0",
+    "pnpm": ">=8.0.0"
+  }
+}
+

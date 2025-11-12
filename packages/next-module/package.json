@@ -1,0 +1,17 @@
+{
+  "name": "@asset-manager/next-module",
+  "version": "1.0.0",
+  "description": "预留的 Next.js 扩展模块",
+  "private": true,
+  "scripts": {
+    "dev": "echo 'Next.js module not implemented yet'",
+    "build": "echo 'Next.js module not implemented yet'"
+  },
+  "keywords": [
+    "nextjs",
+    "ssr"
+  ],
+  "author": "",
+  "license": "MIT"
+}
+

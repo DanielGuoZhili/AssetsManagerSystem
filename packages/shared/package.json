@@ -1,0 +1,22 @@
+{
+  "name": "@asset-manager/shared",
+  "version": "1.0.0",
+  "description": "共享工具、类型和 Hooks",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "type-check": "tsc --noEmit"
+  },
+  "keywords": [
+    "shared",
+    "utils",
+    "hooks"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.3"
+  }
+}
+
