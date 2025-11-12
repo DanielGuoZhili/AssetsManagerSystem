@@ -85,7 +85,20 @@ const MainLayout = () => {
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Sider trigger={null} collapsible collapsed={collapsed} theme="dark">
+      <Sider 
+        trigger={null} 
+        collapsible 
+        collapsed={collapsed} 
+        theme="dark"
+        style={{
+          overflow: 'auto',
+          height: '100vh',
+          position: 'fixed',
+          left: 0,
+          top: 0,
+          bottom: 0,
+        }}
+      >
         <div className="logo">
           <Text style={{ color: '#fff', fontSize: collapsed ? 16 : 20, fontWeight: 'bold' }}>
             {collapsed ? '资管' : '资产管理系统'}
@@ -99,8 +112,8 @@ const MainLayout = () => {
           onClick={handleMenuClick}
         />
       </Sider>
-      <Layout>
-        <Header style={{ padding: '0 24px', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <Layout style={{ marginLeft: collapsed ? 80 : 200, transition: 'margin-left 0.2s' }}>
+        <Header style={{ padding: '0 24px', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 1 }}>
           <div>
             {collapsed ? (
               <MenuUnfoldOutlined

@@ -343,16 +343,44 @@ const MonthlyIncome = () => {
         )
         saveData(newRecords)
       } else {
-        // 创建新记录
+        // 创建新记录 - 复制上个月的内容
+        // 找到最近的一条记录
+        const sortedRecords = [...records].sort((a, b) => b.month.localeCompare(a.month))
+        const lastRecord = sortedRecords[0]
+        
+        const newRecordId = Date.now().toString()
+        let copiedItems: IncomeExpenseItem[] = []
+        let income = 0
+        let expense = 0
+        
+        if (lastRecord) {
+          // 复制上个月的所有项目，但生成新的 id
+          copiedItems = lastRecord.items.map((item, index) => ({
+            ...item,
+            id: `${newRecordId}-${Date.now()}-${index}`,
+          }))
+          
+          // 计算总收入和支出
+          income = copiedItems
+            .filter(item => item.type === 'income')
+            .reduce((sum, item) => sum + item.amount, 0)
+          
+          expense = copiedItems
+            .filter(item => item.type === 'expense')
+            .reduce((sum, item) => sum + item.amount, 0)
+        }
+        
         const newRecord: MonthlyRecord = {
-          id: Date.now().toString(),
+          id: newRecordId,
           month,
-          income: 0,
-          expense: 0,
-          items: [],
+          income,
+          expense,
+          items: copiedItems,
           note: values.note,
         }
+        
         saveData([...records, newRecord])
+        message.success(lastRecord ? `已复制 ${lastRecord.month} 的 ${copiedItems.length} 条记录` : '创建成功')
       }
       
       setModalVisible(false)
