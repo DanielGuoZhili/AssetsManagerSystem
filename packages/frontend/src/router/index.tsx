@@ -4,6 +4,8 @@ import MainLayout from '@/layouts/MainLayout'
 import Login from '@/pages/Login'
 import Home from '@/pages/Home'
 import Dashboard from '@/pages/Dashboard'
+import FinanceInfo from '@/pages/FinanceInfo'
+import MonthlyIncome from '@/pages/MonthlyIncome'
 
 // 受保护的路由组件
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -37,6 +39,12 @@ export function AppRouter() {
         
         {/* 仪表盘 */}
         <Route path="dashboard" element={<Dashboard />} />
+        
+        {/* 当前收支情报 */}
+        <Route path="finance-info" element={<FinanceInfo />} />
+        
+        {/* 每月收支 */}
+        <Route path="monthly-income" element={<MonthlyIncome />} />
         
         {/* 404 */}
         <Route path="*" element={<div>404 - 页面未找到</div>} />

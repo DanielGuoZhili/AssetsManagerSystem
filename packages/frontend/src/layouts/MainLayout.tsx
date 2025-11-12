@@ -10,6 +10,8 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   SettingOutlined,
+  WalletOutlined,
+  LineChartOutlined,
 } from '@ant-design/icons'
 import { useAuth } from '@/state/AuthContext'
 import './MainLayout.css'
@@ -34,6 +36,16 @@ const MainLayout = () => {
       key: '/dashboard',
       icon: <DashboardOutlined />,
       label: '仪表盘',
+    },
+    {
+      key: '/finance-info',
+      icon: <WalletOutlined />,
+      label: '当前收支情报',
+    },
+    {
+      key: '/monthly-income',
+      icon: <LineChartOutlined />,
+      label: '每月收支',
     },
   ]
 

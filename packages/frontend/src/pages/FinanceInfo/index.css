@@ -1,0 +1,31 @@
+.finance-info {
+  width: 100%;
+}
+
+.item-card {
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: 1px solid #f0f0f0;
+}
+
+.item-card:hover {
+  border-color: #1890ff;
+  box-shadow: 0 2px 8px rgba(24, 144, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.ant-statistic-title {
+  font-size: 14px;
+}
+
+.ant-statistic-content {
+  font-size: 24px;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .ant-statistic-content {
+    font-size: 20px;
+  }
+}
+

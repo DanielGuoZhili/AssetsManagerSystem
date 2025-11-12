@@ -1,0 +1,24 @@
+.monthly-income {
+  width: 100%;
+}
+
+.ant-table-row {
+  transition: background-color 0.3s ease;
+}
+
+.ant-table-row:hover {
+  background-color: #fafafa !important;
+}
+
+/* 图表容器样式 */
+.ant-card .g2-html-annotation {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* 确保图表响应式 */
+@media (max-width: 768px) {
+  .ant-col {
+    margin-bottom: 16px;
+  }
+}
+
