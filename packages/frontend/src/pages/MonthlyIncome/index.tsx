@@ -1,71 +1,184 @@
-import { useState, useEffect, useMemo } from 'react'
-import { 
-  Card, 
-  Typography, 
-  Row, 
-  Col, 
-  Button, 
-  Table, 
-  Modal, 
-  Form, 
-  Input, 
-  InputNumber, 
+import { useState, useEffect, useMemo } from 'react';
+import {
+  Card,
+  Typography,
+  Row,
+  Col,
+  Button,
+  Table,
+  Modal,
+  Form,
+  Input,
+  InputNumber,
   DatePicker,
   Space,
   Tag,
   Statistic,
   message,
-  Popconfirm
-} from 'antd'
-import { Pie, Column, Line } from '@ant-design/charts'
-import type { ColumnsType } from 'antd/es/table'
-import { 
-  PlusOutlined, 
-  EditOutlined, 
+  Popconfirm,
+} from 'antd';
+import { Pie, Column, Line } from '@ant-design/charts';
+import type { ColumnsType } from 'antd/es/table';
+import {
+  PlusOutlined,
+  EditOutlined,
   DeleteOutlined,
   DollarOutlined,
   RiseOutlined,
-  FallOutlined
-} from '@ant-design/icons'
-import dayjs, { Dayjs } from 'dayjs'
-import './index.css'
+  FallOutlined,
+} from '@ant-design/icons';
+import dayjs, { Dayjs } from 'dayjs';
+import './index.css';
 
-const { Title, Text } = Typography
+const { Title, Text } = Typography;
 
 // 收入/支出项目类型
 interface IncomeExpenseItem {
-  id: string
-  name: string
-  amount: number
-  type: 'income' | 'expense'
-  category: string
+  id: string;
+  name: string;
+  amount: number;
+  type: 'income' | 'expense';
+  category: string;
 }
 
 // 每月记录类型
 interface MonthlyRecord {
-  id: string
-  month: string // YYYY-MM格式
-  income: number
-  expense: number
-  items: IncomeExpenseItem[]
-  note?: string
+  id: string;
+  month: string; // YYYY-MM格式
+  income: number;
+  expense: number;
+  items: IncomeExpenseItem[];
+  note?: string;
 }
 
 // 默认数据
 const defaultRecords: MonthlyRecord[] = [
+  {
+    id: '0',
+    month: '2024-12',
+    income: 400000,
+    expense: 249850,
+    items: [
+      {
+        id: '0-1',
+        name: '工资',
+        amount: 400000,
+        type: 'income',
+        category: '收入',
+      },
+      {
+        id: '0-2',
+        name: '房租',
+        amount: 85000,
+        type: 'expense',
+        category: '住房',
+      },
+      {
+        id: '0-3',
+        name: '年金',
+        amount: 17100,
+        type: 'expense',
+        category: '保险',
+      },
+      {
+        id: '0-4',
+        name: '保险',
+        amount: 44000,
+        type: 'expense',
+        category: '保险',
+      },
+      {
+        id: '0-5',
+        name: '信用卡',
+        amount: 100000,
+        type: 'expense',
+        category: '日常',
+      },
+      {
+        id: '0-6',
+        name: 'iCloud',
+        amount: 450,
+        type: 'expense',
+        category: '订阅',
+      },
+      {
+        id: '0-7',
+        name: 'Cursor',
+        amount: 2800,
+        type: 'expense',
+        category: '订阅',
+      },
+      {
+        id: '0-8',
+        name: '住民税',
+        amount: 500,
+        type: 'expense',
+        category: '税金',
+      },
+    ],
+  },
   {
     id: '1',
     month: '2024-11',
     income: 400000,
     expense: 320000,
     items: [
-      { id: '1-1', name: '工资', amount: 400000, type: 'income', category: '收入' },
-      { id: '1-2', name: '房租', amount: 85000, type: 'expense', category: '住房' },
-      { id: '1-3', name: '年金', amount: 17100, type: 'expense', category: '保险' },
-      { id: '1-4', name: '保险', amount: 44000, type: 'expense', category: '保险' },
-      { id: '1-5', name: '信用卡', amount: 100000, type: 'expense', category: '日常' },
-      { id: '1-6', name: 'iCloud', amount: 450, type: 'expense', category: '订阅' },
-      { id: '1-7', name: 'Cursor', amount: 2800, type: 'expense', category: '订阅' },
+      {
+        id: '1-1',
+        name: '工资',
+        amount: 400000,
+        type: 'income',
+        category: '收入',
+      },
+      {
+        id: '1-2',
+        name: '房租',
+        amount: 85000,
+        type: 'expense',
+        category: '住房',
+      },
+      {
+        id: '1-3',
+        name: '年金',
+        amount: 17100,
+        type: 'expense',
+        category: '保险',
+      },
+      {
+        id: '1-4',
+        name: '保险',
+        amount: 44000,
+        type: 'expense',
+        category: '保险',
+      },
+      {
+        id: '1-5',
+        name: '信用卡',
+        amount: 100000,
+        type: 'expense',
+        category: '日常',
+      },
+      {
+        id: '1-6',
+        name: 'iCloud',
+        amount: 450,
+        type: 'expense',
+        category: '订阅',
+      },
+      {
+        id: '1-7',
+        name: 'Cursor',
+        amount: 2800,
+        type: 'expense',
+        category: '订阅',
+      },
+      {
+        id: '1-8',
+        name: '住民税',
+        amount: 70650,
+        type: 'expense',
+        category: '税金',
+      },
     ],
   },
   {
@@ -74,98 +187,148 @@ const defaultRecords: MonthlyRecord[] = [
     income: 400000,
     expense: 310000,
     items: [
-      { id: '2-1', name: '工资', amount: 400000, type: 'income', category: '收入' },
-      { id: '2-2', name: '房租', amount: 85000, type: 'expense', category: '住房' },
-      { id: '2-3', name: '年金', amount: 17100, type: 'expense', category: '保险' },
-      { id: '2-4', name: '保险', amount: 44000, type: 'expense', category: '保险' },
-      { id: '2-5', name: '信用卡', amount: 95000, type: 'expense', category: '日常' },
+      {
+        id: '2-1',
+        name: '工资',
+        amount: 400000,
+        type: 'income',
+        category: '收入',
+      },
+      {
+        id: '2-2',
+        name: '房租',
+        amount: 85000,
+        type: 'expense',
+        category: '住房',
+      },
+      {
+        id: '2-3',
+        name: '年金',
+        amount: 17100,
+        type: 'expense',
+        category: '保险',
+      },
+      {
+        id: '2-4',
+        name: '保险',
+        amount: 44000,
+        type: 'expense',
+        category: '保险',
+      },
+      {
+        id: '2-5',
+        name: '信用卡',
+        amount: 95000,
+        type: 'expense',
+        category: '日常',
+      },
+      {
+        id: '2-6',
+        name: 'iCloud',
+        amount: 450,
+        type: 'expense',
+        category: '订阅',
+      },
+      {
+        id: '2-7',
+        name: 'Cursor',
+        amount: 2800,
+        type: 'expense',
+        category: '订阅',
+      },
+      {
+        id: '2-8',
+        name: '住民税',
+        amount: 65650,
+        type: 'expense',
+        category: '税金',
+      },
     ],
   },
-  {
-    id: '3',
-    month: '2024-09',
-    income: 400000,
-    expense: 335000,
-    items: [
-      { id: '3-1', name: '工资', amount: 400000, type: 'income', category: '收入' },
-      { id: '3-2', name: '房租', amount: 85000, type: 'expense', category: '住房' },
-      { id: '3-3', name: '年金', amount: 17100, type: 'expense', category: '保险' },
-      { id: '3-4', name: '保险', amount: 44000, type: 'expense', category: '保险' },
-      { id: '3-5', name: '住民税', amount: 71000, type: 'expense', category: '税金' },
-      { id: '3-6', name: '信用卡', amount: 118000, type: 'expense', category: '日常' },
-    ],
-  },
-]
+];
 
 const MonthlyIncome = () => {
-  const [records, setRecords] = useState<MonthlyRecord[]>(defaultRecords)
-  const [selectedMonth, setSelectedMonth] = useState<string>(dayjs().format('YYYY-MM'))
-  const [modalVisible, setModalVisible] = useState(false)
-  const [itemModalVisible, setItemModalVisible] = useState(false)
-  const [editingRecord, setEditingRecord] = useState<MonthlyRecord | null>(null)
-  const [editingItem, setEditingItem] = useState<IncomeExpenseItem | null>(null)
-  const [form] = Form.useForm()
-  const [itemForm] = Form.useForm()
-
-  // 从 localStorage 加载数据
-  useEffect(() => {
-    const savedData = localStorage.getItem('monthlyRecords')
-    if (savedData) {
-      setRecords(JSON.parse(savedData))
+  // 首先计算初始选中月份
+  const getInitialMonth = () => {
+    const savedData = localStorage.getItem('monthlyRecords');
+    const recordsToUse = savedData ? JSON.parse(savedData) : defaultRecords;
+    if (recordsToUse.length > 0) {
+      const sorted = [...recordsToUse].sort(
+        (a: MonthlyRecord, b: MonthlyRecord) => b.month.localeCompare(a.month)
+      );
+      return sorted[0].month;
     }
-  }, [])
+    return '2024-12';
+  };
+
+  const [records, setRecords] = useState<MonthlyRecord[]>(() => {
+    const savedData = localStorage.getItem('monthlyRecords');
+    return savedData ? JSON.parse(savedData) : defaultRecords;
+  });
+  const [selectedMonth, setSelectedMonth] = useState<string>(getInitialMonth());
+  const [modalVisible, setModalVisible] = useState(false);
+  const [itemModalVisible, setItemModalVisible] = useState(false);
+  const [editingRecord, setEditingRecord] = useState<MonthlyRecord | null>(
+    null
+  );
+  const [editingItem, setEditingItem] = useState<IncomeExpenseItem | null>(
+    null
+  );
+  const [form] = Form.useForm();
+  const [itemForm] = Form.useForm();
 
   // 保存数据到 localStorage
   const saveData = (newRecords: MonthlyRecord[]) => {
-    setRecords(newRecords)
-    localStorage.setItem('monthlyRecords', JSON.stringify(newRecords))
-    message.success('保存成功！')
-  }
+    setRecords(newRecords);
+    localStorage.setItem('monthlyRecords', JSON.stringify(newRecords));
+    message.success('保存成功！');
+  };
 
   // 当前选中月份的记录
   const currentRecord = useMemo(() => {
-    return records.find(r => r.month === selectedMonth)
-  }, [records, selectedMonth])
+    return records.find((r) => r.month === selectedMonth);
+  }, [records, selectedMonth]);
 
   // 获取最近3个月的数据（用于图表）
   const recentMonthsData = useMemo(() => {
-    const sorted = [...records].sort((a, b) => b.month.localeCompare(a.month))
-    return sorted.slice(0, 3).reverse()
-  }, [records])
+    const sorted = [...records].sort((a, b) => b.month.localeCompare(a.month));
+    return sorted.slice(0, 3).reverse();
+  }, [records]);
 
   // 饼图数据 - 当月支出分类
   const pieData = useMemo(() => {
-    if (!currentRecord) return []
-    
-    const categoryMap: Record<string, number> = {}
+    if (!currentRecord) return [];
+
+    const categoryMap: Record<string, number> = {};
     currentRecord.items
-      .filter(item => item.type === 'expense')
-      .forEach(item => {
-        categoryMap[item.category] = (categoryMap[item.category] || 0) + item.amount
-      })
-    
+      .filter((item) => item.type === 'expense')
+      .forEach((item) => {
+        categoryMap[item.category] =
+          (categoryMap[item.category] || 0) + item.amount;
+      });
+
     return Object.entries(categoryMap).map(([category, amount]) => ({
       type: category,
       value: amount,
-    }))
-  }, [currentRecord])
+    }));
+  }, [currentRecord]);
 
   // 柱状图数据 - 近3个月收入支出对比
   const columnData = useMemo(() => {
-    return recentMonthsData.flatMap(record => [
+    return recentMonthsData.flatMap((record) => [
       { month: record.month, type: '收入', value: record.income },
       { month: record.month, type: '支出', value: record.expense },
-    ])
-  }, [recentMonthsData])
+    ]);
+  }, [recentMonthsData]);
 
-  // 折线图数据 - 近3个月收入支出趋势
+  // 折线图数据 - 近3个月收支趋势
+  // 修改：包含收入和支出两条线
   const lineData = useMemo(() => {
-    return recentMonthsData.flatMap(record => [
+    return recentMonthsData.flatMap((record) => [
       { month: record.month, type: '收入', value: record.income },
       { month: record.month, type: '支出', value: record.expense },
-      { month: record.month, type: '余额', value: record.income - record.expense },
-    ])
-  }, [recentMonthsData])
+    ]);
+  }, [recentMonthsData]);
 
   // 表格列定义
   const columns: ColumnsType<MonthlyRecord> = [
@@ -200,12 +363,17 @@ const MonthlyIncome = () => {
       title: '余额',
       key: 'balance',
       render: (_, record) => {
-        const balance = record.income - record.expense
+        const balance = record.income - record.expense;
         return (
-          <Text style={{ color: balance >= 0 ? '#1890ff' : '#ff4d4f', fontWeight: 'bold' }}>
+          <Text
+            style={{
+              color: balance >= 0 ? '#1890ff' : '#ff4d4f',
+              fontWeight: 'bold',
+            }}
+          >
             ¥{balance.toLocaleString()}
           </Text>
-        )
+        );
       },
     },
     {
@@ -213,8 +381,12 @@ const MonthlyIncome = () => {
       key: 'items',
       render: (_, record) => (
         <Space size="small">
-          <Tag color="green">{record.items.filter(i => i.type === 'income').length} 项收入</Tag>
-          <Tag color="red">{record.items.filter(i => i.type === 'expense').length} 项支出</Tag>
+          <Tag color="green">
+            {record.items.filter((i) => i.type === 'income').length} 项收入
+          </Tag>
+          <Tag color="red">
+            {record.items.filter((i) => i.type === 'expense').length} 项支出
+          </Tag>
         </Space>
       ),
     },
@@ -223,9 +395,9 @@ const MonthlyIncome = () => {
       key: 'action',
       render: (_, record) => (
         <Space size="small">
-          <Button 
-            type="link" 
-            size="small" 
+          <Button
+            type="link"
+            size="small"
             icon={<EditOutlined />}
             onClick={() => openEditModal(record)}
           >
@@ -238,19 +410,14 @@ const MonthlyIncome = () => {
             okText="确定"
             cancelText="取消"
           >
-            <Button 
-              type="link" 
-              danger 
-              size="small" 
-              icon={<DeleteOutlined />}
-            >
+            <Button type="link" danger size="small" icon={<DeleteOutlined />}>
               删除
             </Button>
           </Popconfirm>
         </Space>
       ),
     },
-  ]
+  ];
 
   // 明细项目表格列
   const itemColumns: ColumnsType<IncomeExpenseItem> = [
@@ -285,9 +452,9 @@ const MonthlyIncome = () => {
       key: 'action',
       render: (_, item) => (
         <Space size="small">
-          <Button 
-            type="link" 
-            size="small" 
+          <Button
+            type="link"
+            size="small"
             icon={<EditOutlined />}
             onClick={() => openItemEditModal(item)}
           >
@@ -299,77 +466,146 @@ const MonthlyIncome = () => {
             okText="确定"
             cancelText="取消"
           >
-            <Button 
-              type="link" 
-              danger 
-              size="small" 
-              icon={<DeleteOutlined />}
-            >
+            <Button type="link" danger size="small" icon={<DeleteOutlined />}>
               删除
             </Button>
           </Popconfirm>
         </Space>
       ),
     },
-  ]
+  ];
 
   // 打开编辑月度记录弹窗
   const openEditModal = (record?: MonthlyRecord) => {
-    setEditingRecord(record || null)
+    setEditingRecord(record || null);
     if (record) {
       form.setFieldsValue({
         month: dayjs(record.month),
         note: record.note,
-      })
-      setSelectedMonth(record.month)
+      });
+      setSelectedMonth(record.month);
     } else {
-      form.resetFields()
-      form.setFieldsValue({ month: dayjs() })
+      form.resetFields();
+      form.setFieldsValue({ month: dayjs() });
     }
-    setModalVisible(true)
-  }
+    setModalVisible(true);
+  };
 
   // 保存月度记录
   const handleSaveRecord = () => {
-    form.validateFields().then(values => {
-      const month = values.month.format('YYYY-MM')
-      
+    form.validateFields().then((values) => {
+      const month = values.month.format('YYYY-MM');
+
       if (editingRecord) {
         // 更新现有记录
-        const newRecords = records.map(r => 
-          r.id === editingRecord.id 
-            ? { ...r, month, note: values.note }
-            : r
-        )
-        saveData(newRecords)
+        const newRecords = records.map((r) =>
+          r.id === editingRecord.id ? { ...r, month, note: values.note } : r
+        );
+        saveData(newRecords);
       } else {
-        // 创建新记录 - 复制上个月的内容
-        // 找到最近的一条记录
-        const sortedRecords = [...records].sort((a, b) => b.month.localeCompare(a.month))
-        const lastRecord = sortedRecords[0]
-        
-        const newRecordId = Date.now().toString()
-        let copiedItems: IncomeExpenseItem[] = []
-        let income = 0
-        let expense = 0
-        
-        if (lastRecord) {
-          // 复制上个月的所有项目，但生成新的 id
-          copiedItems = lastRecord.items.map((item, index) => ({
-            ...item,
-            id: `${newRecordId}-${Date.now()}-${index}`,
-          }))
-          
-          // 计算总收入和支出
-          income = copiedItems
-            .filter(item => item.type === 'income')
-            .reduce((sum, item) => sum + item.amount, 0)
-          
-          expense = copiedItems
-            .filter(item => item.type === 'expense')
-            .reduce((sum, item) => sum + item.amount, 0)
+        // 创建新记录 - 从当前收支情报读取数据
+        const financeDataStr = localStorage.getItem('financeData');
+        const newRecordId = Date.now().toString();
+        let copiedItems: IncomeExpenseItem[] = [];
+        let income = 0;
+        let expense = 0;
+
+        if (financeDataStr) {
+          // 从当前收支情报读取数据
+          const financeData = JSON.parse(financeDataStr);
+
+          // 添加收入项目
+          if (financeData.income && financeData.income > 0) {
+            copiedItems.push({
+              id: `${newRecordId}-income-0`,
+              name: '工资',
+              amount: financeData.income,
+              type: 'income',
+              category: '收入',
+            });
+            income = financeData.income;
+          }
+
+          // 添加支出项目（从expenses）
+          let expenseIndex = 0;
+          if (financeData.expenses && Array.isArray(financeData.expenses)) {
+            financeData.expenses.forEach((exp: any) => {
+              // 解析金额
+              let amount = 0;
+              const amountStr = exp.amount.toString();
+              if (amountStr.includes('-')) {
+                // 如果是区间，取平均值
+                const [min, max] = amountStr
+                  .split('-')
+                  .map((s: string) => parseFloat(s.replace(/[^\d.]/g, '')));
+                amount = (min + max) / 2;
+              } else {
+                amount = parseFloat(amountStr.replace(/[^\d.]/g, '')) || 0;
+              }
+
+              if (amount > 0) {
+                copiedItems.push({
+                  id: `${newRecordId}-expense-${expenseIndex++}`,
+                  name: exp.name,
+                  amount: amount,
+                  type: 'expense',
+                  category: exp.note || '日常',
+                });
+                expense += amount;
+              }
+            });
+          }
+
+          // 添加订阅服务
+          if (
+            financeData.subscriptions &&
+            Array.isArray(financeData.subscriptions)
+          ) {
+            financeData.subscriptions.forEach((sub: any) => {
+              const amount = parseFloat(sub.amount.replace(/[^\d.]/g, '')) || 0;
+              if (amount > 0) {
+                copiedItems.push({
+                  id: `${newRecordId}-subscription-${expenseIndex++}`,
+                  name: sub.name,
+                  amount: amount,
+                  type: 'expense',
+                  category: '订阅',
+                });
+                expense += amount;
+              }
+            });
+          }
+
+          message.success(`已从当前收支情报导入 ${copiedItems.length} 条记录`);
+        } else {
+          // 如果没有当前收支情报数据，复制上个月的记录
+          const sortedRecords = [...records].sort((a, b) =>
+            b.month.localeCompare(a.month)
+          );
+          const lastRecord = sortedRecords[0];
+
+          if (lastRecord) {
+            copiedItems = lastRecord.items.map((item, index) => ({
+              ...item,
+              id: `${newRecordId}-${Date.now()}-${index}`,
+            }));
+
+            income = copiedItems
+              .filter((item) => item.type === 'income')
+              .reduce((sum, item) => sum + item.amount, 0);
+
+            expense = copiedItems
+              .filter((item) => item.type === 'expense')
+              .reduce((sum, item) => sum + item.amount, 0);
+
+            message.success(
+              `已复制 ${lastRecord.month} 的 ${copiedItems.length} 条记录`
+            );
+          } else {
+            message.success('创建成功');
+          }
         }
-        
+
         const newRecord: MonthlyRecord = {
           id: newRecordId,
           month,
@@ -377,110 +613,109 @@ const MonthlyIncome = () => {
           expense,
           items: copiedItems,
           note: values.note,
-        }
-        
-        saveData([...records, newRecord])
-        message.success(lastRecord ? `已复制 ${lastRecord.month} 的 ${copiedItems.length} 条记录` : '创建成功')
+        };
+
+        saveData([...records, newRecord]);
       }
-      
-      setModalVisible(false)
-      setSelectedMonth(month)
-      form.resetFields()
-    })
-  }
+
+      setModalVisible(false);
+      setSelectedMonth(month);
+      form.resetFields();
+    });
+  };
 
   // 删除月度记录
   const handleDeleteRecord = (id: string) => {
-    const newRecords = records.filter(r => r.id !== id)
-    saveData(newRecords)
-  }
+    const newRecords = records.filter((r) => r.id !== id);
+    saveData(newRecords);
+  };
 
   // 打开编辑项目弹窗
   const openItemEditModal = (item?: IncomeExpenseItem) => {
-    setEditingItem(item || null)
+    setEditingItem(item || null);
     if (item) {
-      itemForm.setFieldsValue(item)
+      itemForm.setFieldsValue(item);
     } else {
-      itemForm.resetFields()
+      itemForm.resetFields();
     }
-    setItemModalVisible(true)
-  }
+    setItemModalVisible(true);
+  };
 
   // 保存项目
   const handleSaveItem = () => {
     if (!currentRecord) {
-      message.error('请先选择或创建月度记录')
-      return
+      message.error('请先选择或创建月度记录');
+      return;
     }
 
-    itemForm.validateFields().then(values => {
+    itemForm.validateFields().then((values) => {
       const newItem: IncomeExpenseItem = {
         id: editingItem?.id || `${currentRecord.id}-${Date.now()}`,
         ...values,
-      }
+      };
 
-      let newItems: IncomeExpenseItem[]
+      let newItems: IncomeExpenseItem[];
       if (editingItem) {
-        newItems = currentRecord.items.map(item => 
+        newItems = currentRecord.items.map((item) =>
           item.id === editingItem.id ? newItem : item
-        )
+        );
       } else {
-        newItems = [...currentRecord.items, newItem]
+        newItems = [...currentRecord.items, newItem];
       }
 
       // 重新计算收入和支出
       const income = newItems
-        .filter(item => item.type === 'income')
-        .reduce((sum, item) => sum + item.amount, 0)
-      
+        .filter((item) => item.type === 'income')
+        .reduce((sum, item) => sum + item.amount, 0);
+
       const expense = newItems
-        .filter(item => item.type === 'expense')
-        .reduce((sum, item) => sum + item.amount, 0)
+        .filter((item) => item.type === 'expense')
+        .reduce((sum, item) => sum + item.amount, 0);
 
       const updatedRecord = {
         ...currentRecord,
         items: newItems,
         income,
         expense,
-      }
+      };
 
-      const newRecords = records.map(r => 
+      const newRecords = records.map((r) =>
         r.id === currentRecord.id ? updatedRecord : r
-      )
+      );
 
-      saveData(newRecords)
-      setItemModalVisible(false)
-      itemForm.resetFields()
-    })
-  }
+      saveData(newRecords);
+      setItemModalVisible(false);
+      itemForm.resetFields();
+    });
+  };
 
   // 删除项目
   const handleDeleteItem = (itemId: string) => {
-    if (!currentRecord) return
+    if (!currentRecord) return;
 
-    const newItems = currentRecord.items.filter(item => item.id !== itemId)
-    
+    const newItems = currentRecord.items.filter((item) => item.id !== itemId);
+
     const income = newItems
-      .filter(item => item.type === 'income')
-      .reduce((sum, item) => sum + item.amount, 0)
-    
+      .filter((item) => item.type === 'income')
+      .reduce((sum, item) => sum + item.amount, 0);
+
     const expense = newItems
-      .filter(item => item.type === 'expense')
-      .reduce((sum, item) => sum + item.amount, 0)
+      .filter((item) => item.type === 'expense')
+      .reduce((sum, item) => sum + item.amount, 0);
 
     const updatedRecord = {
       ...currentRecord,
       items: newItems,
       income,
       expense,
-    }
+    };
 
-    const newRecords = records.map(r => 
+    const newRecords = records.map((r) =>
       r.id === currentRecord.id ? updatedRecord : r
-    )
+    );
 
-    saveData(newRecords)
-  }
+    saveData(newRecords);
+  };
 
   return (
     <div className="monthly-income">
@@ -495,23 +730,71 @@ const MonthlyIncome = () => {
         <Row gutter={[16, 16]}>
           {/* 饼图 - 当月支出分类 */}
           <Col xs={24} lg={8}>
-            <Card title="当月支出分类" bordered={false}>
+            <Card
+              title={`当月支出分类 (${selectedMonth || '未选择'})`}
+              bordered={false}
+            >
               {pieData.length > 0 ? (
                 <Pie
                   data={pieData}
                   angleField="value"
                   colorField="type"
-                  radius={0.8}
+                  // 修改：使用 items 函数来自定义 tooltip，修复 hover 内容消失的问题
+                  tooltip={{
+                    items: [
+                      (d: any) => ({
+                        name: d.type,
+                        value: d.value,
+                      }),
+                    ],
+                  }}
+                  radius={0.75}
+                  innerRadius={0.4}
                   label={{
-                    type: 'outer',
-                    content: '{name} {percentage}',
+                    type: 'inner',
+                    offset: '-30%',
+                    text: 'value',
+                    style: {
+                      fontSize: 14,
+                      textAlign: 'center',
+                      fill: '#fff',
+                    },
+                  }}
+                  statistic={{
+                    title: false,
+                    content: {
+                      style: {
+                        whiteSpace: 'pre-wrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        fontSize: '14px',
+                      },
+                      content: '支出分类',
+                    },
+                  }}
+                  legend={{
+                    position: 'bottom',
+                    flipPage: false,
                   }}
                   interactions={[{ type: 'element-active' }]}
                   height={250}
                 />
               ) : (
-                <div style={{ height: 250, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div
+                  style={{
+                    height: 250,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexDirection: 'column',
+                  }}
+                >
                   <Text type="secondary">暂无数据</Text>
+                  <Text type="secondary" style={{ fontSize: 12, marginTop: 8 }}>
+                    {selectedMonth
+                      ? `${selectedMonth} 月暂无支出记录`
+                      : '请选择月份'}
+                  </Text>
                 </div>
               )}
             </Card>
@@ -525,7 +808,7 @@ const MonthlyIncome = () => {
                   data={columnData}
                   xField="month"
                   yField="value"
-                  seriesField="type"
+                  colorField="type"
                   isGroup={true}
                   columnStyle={{
                     radius: [4, 4, 0, 0],
@@ -533,19 +816,34 @@ const MonthlyIncome = () => {
                   height={250}
                   label={{
                     position: 'top',
-                    formatter: (datum: any) => `¥${(datum.value / 10000).toFixed(1)}万`,
+                    text: (d: any) => {
+                      const val = typeof d.value === 'number' ? d.value : 0;
+                      return `¥${(val / 10000).toFixed(1)}万`;
+                    },
+                    style: {
+                      fill: '#666',
+                      fontSize: 12,
+                    },
                   }}
-                  color={['#52c41a', '#ff4d4f']}
+                  // 修改：使用数组指定颜色，确保收入蓝、支出红
+                  color={['#1890ff', '#ff4d4f']}
                 />
               ) : (
-                <div style={{ height: 250, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div
+                  style={{
+                    height: 250,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
                   <Text type="secondary">暂无数据</Text>
                 </div>
               )}
             </Card>
           </Col>
 
-          {/* 折线图 - 近3个月趋势 */}
+          {/* 折线图 - 近3个月支出趋势 */}
           <Col xs={24} lg={8}>
             <Card title="近3个月收支趋势" bordered={false}>
               {lineData.length > 0 ? (
@@ -553,16 +851,36 @@ const MonthlyIncome = () => {
                   data={lineData}
                   xField="month"
                   yField="value"
-                  seriesField="type"
+                  // 修改：添加 seriesField 以区分收入和支出
+                  colorField="type"
                   point={{
                     size: 5,
                     shape: 'circle',
                   }}
+                  smooth={true}
                   height={250}
-                  color={['#52c41a', '#ff4d4f', '#1890ff']}
+                  // 修改：设置颜色，收入蓝，支出红
+                  color={['#1890ff', '#ff4d4f']}
+                  label={{
+                    text: (d: any) => {
+                      const val = typeof d.value === 'number' ? d.value : 0;
+                      return `¥${(val / 10000).toFixed(1)}万`;
+                    },
+                    style: {
+                      fontSize: 10,
+                      dy: -5,
+                    },
+                  }}
                 />
               ) : (
-                <div style={{ height: 250, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div
+                  style={{
+                    height: 250,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
                   <Text type="secondary">暂无数据</Text>
                 </div>
               )}
@@ -605,8 +923,11 @@ const MonthlyIncome = () => {
                   precision={0}
                   prefix={<DollarOutlined />}
                   suffix="¥"
-                  valueStyle={{ 
-                    color: currentRecord.income - currentRecord.expense >= 0 ? '#1890ff' : '#ff4d4f' 
+                  valueStyle={{
+                    color:
+                      currentRecord.income - currentRecord.expense >= 0
+                        ? '#1890ff'
+                        : '#ff4d4f',
                   }}
                 />
               </Card>
@@ -615,12 +936,12 @@ const MonthlyIncome = () => {
         )}
 
         {/* 收支项目管理 */}
-        <Card 
+        <Card
           title={`${selectedMonth} 收支明细`}
           extra={
             <Space>
-              <Button 
-                type="primary" 
+              <Button
+                type="primary"
                 icon={<PlusOutlined />}
                 onClick={() => openItemEditModal()}
                 disabled={!currentRecord}
@@ -646,11 +967,11 @@ const MonthlyIncome = () => {
         </Card>
 
         {/* 月度记录表格 */}
-        <Card 
+        <Card
           title="月度收支记录"
           extra={
-            <Button 
-              type="primary" 
+            <Button
+              type="primary"
               icon={<PlusOutlined />}
               onClick={() => openEditModal()}
             >
@@ -669,9 +990,10 @@ const MonthlyIncome = () => {
             }}
             onRow={(record) => ({
               onClick: () => setSelectedMonth(record.month),
-              style: { 
+              style: {
                 cursor: 'pointer',
-                backgroundColor: record.month === selectedMonth ? '#f0f5ff' : undefined
+                backgroundColor:
+                  record.month === selectedMonth ? '#f0f5ff' : undefined,
               },
             })}
           />
@@ -684,16 +1006,16 @@ const MonthlyIncome = () => {
         open={modalVisible}
         onOk={handleSaveRecord}
         onCancel={() => {
-          setModalVisible(false)
-          form.resetFields()
+          setModalVisible(false);
+          form.resetFields();
         }}
         okText="保存"
         cancelText="取消"
       >
         <Form form={form} layout="vertical">
-          <Form.Item 
-            label="月份" 
-            name="month" 
+          <Form.Item
+            label="月份"
+            name="month"
             rules={[{ required: true, message: '请选择月份' }]}
           >
             <DatePicker picker="month" style={{ width: '100%' }} />
@@ -710,57 +1032,65 @@ const MonthlyIncome = () => {
         open={itemModalVisible}
         onOk={handleSaveItem}
         onCancel={() => {
-          setItemModalVisible(false)
-          itemForm.resetFields()
+          setItemModalVisible(false);
+          itemForm.resetFields();
         }}
         okText="保存"
         cancelText="取消"
       >
         <Form form={itemForm} layout="vertical">
-          <Form.Item 
-            label="项目名称" 
-            name="name" 
+          <Form.Item
+            label="项目名称"
+            name="name"
             rules={[{ required: true, message: '请输入项目名称' }]}
           >
             <Input placeholder="如：工资、房租、信用卡等" />
           </Form.Item>
 
-          <Form.Item 
-            label="类型" 
-            name="type" 
+          <Form.Item
+            label="类型"
+            name="type"
             rules={[{ required: true, message: '请选择类型' }]}
           >
             <Space>
-              <Button 
+              <Button
                 onClick={() => itemForm.setFieldsValue({ type: 'income' })}
-                type={itemForm.getFieldValue('type') === 'income' ? 'primary' : 'default'}
+                type={
+                  itemForm.getFieldValue('type') === 'income'
+                    ? 'primary'
+                    : 'default'
+                }
               >
                 收入
               </Button>
-              <Button 
+              <Button
                 onClick={() => itemForm.setFieldsValue({ type: 'expense' })}
-                type={itemForm.getFieldValue('type') === 'expense' ? 'primary' : 'default'}
+                type={
+                  itemForm.getFieldValue('type') === 'expense'
+                    ? 'primary'
+                    : 'default'
+                }
               >
                 支出
               </Button>
             </Space>
           </Form.Item>
 
-          <Form.Item 
-            label="分类" 
-            name="category" 
+          <Form.Item
+            label="分类"
+            name="category"
             rules={[{ required: true, message: '请输入分类' }]}
           >
             <Input placeholder="如：住房、保险、日常、订阅等" />
           </Form.Item>
 
-          <Form.Item 
-            label="金额" 
-            name="amount" 
+          <Form.Item
+            label="金额"
+            name="amount"
             rules={[{ required: true, message: '请输入金额' }]}
           >
-            <InputNumber 
-              style={{ width: '100%' }} 
+            <InputNumber
+              style={{ width: '100%' }}
               prefix="¥"
               min={0}
               placeholder="请输入金额"
@@ -769,8 +1099,7 @@ const MonthlyIncome = () => {
         </Form>
       </Modal>
     </div>
-  )
-}
+  );
+};
 
-export default MonthlyIncome
-
+export default MonthlyIncome;
