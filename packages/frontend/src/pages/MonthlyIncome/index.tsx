@@ -748,12 +748,18 @@ const MonthlyIncome = () => {
                       }),
                     ],
                   }}
-                  radius={0.75}
-                  innerRadius={0.4}
+                  radius={0.9}
+                  innerRadius={0.5}
                   label={{
-                    type: 'inner',
-                    offset: '-30%',
-                    text: 'value',
+                    text: (d: any) => {
+                      const total = pieData.reduce(
+                        (sum, item) => sum + item.value,
+                        0
+                      );
+                      const percent = total > 0 ? (d.value / total) * 100 : 0;
+                      return `${percent.toFixed(0)}%`;
+                    },
+                    position: 'inside',
                     style: {
                       fontSize: 14,
                       textAlign: 'center',
