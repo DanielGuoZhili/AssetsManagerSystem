@@ -16,6 +16,8 @@ import {
   Statistic,
   message,
   Popconfirm,
+  Upload,
+  Tooltip,
 } from 'antd';
 import { Pie, Column, Line } from '@ant-design/charts';
 import type { ColumnsType } from 'antd/es/table';
@@ -26,8 +28,11 @@ import {
   DollarOutlined,
   RiseOutlined,
   FallOutlined,
+  DownloadOutlined,
+  UploadOutlined,
 } from '@ant-design/icons';
 import dayjs, { Dayjs } from 'dayjs';
+import initialData from './data.json';
 import './index.css';
 
 const { Title, Text } = Typography;
@@ -51,219 +56,27 @@ interface MonthlyRecord {
   note?: string;
 }
 
-// 默认数据
-const defaultRecords: MonthlyRecord[] = [
-  {
-    id: '0',
-    month: '2024-12',
-    income: 400000,
-    expense: 249850,
-    items: [
-      {
-        id: '0-1',
-        name: '工资',
-        amount: 400000,
-        type: 'income',
-        category: '收入',
-      },
-      {
-        id: '0-2',
-        name: '房租',
-        amount: 85000,
-        type: 'expense',
-        category: '住房',
-      },
-      {
-        id: '0-3',
-        name: '年金',
-        amount: 17100,
-        type: 'expense',
-        category: '保险',
-      },
-      {
-        id: '0-4',
-        name: '保险',
-        amount: 44000,
-        type: 'expense',
-        category: '保险',
-      },
-      {
-        id: '0-5',
-        name: '信用卡',
-        amount: 100000,
-        type: 'expense',
-        category: '日常',
-      },
-      {
-        id: '0-6',
-        name: 'iCloud',
-        amount: 450,
-        type: 'expense',
-        category: '订阅',
-      },
-      {
-        id: '0-7',
-        name: 'Cursor',
-        amount: 2800,
-        type: 'expense',
-        category: '订阅',
-      },
-      {
-        id: '0-8',
-        name: '住民税',
-        amount: 500,
-        type: 'expense',
-        category: '税金',
-      },
-    ],
-  },
-  {
-    id: '1',
-    month: '2024-11',
-    income: 400000,
-    expense: 320000,
-    items: [
-      {
-        id: '1-1',
-        name: '工资',
-        amount: 400000,
-        type: 'income',
-        category: '收入',
-      },
-      {
-        id: '1-2',
-        name: '房租',
-        amount: 85000,
-        type: 'expense',
-        category: '住房',
-      },
-      {
-        id: '1-3',
-        name: '年金',
-        amount: 17100,
-        type: 'expense',
-        category: '保险',
-      },
-      {
-        id: '1-4',
-        name: '保险',
-        amount: 44000,
-        type: 'expense',
-        category: '保险',
-      },
-      {
-        id: '1-5',
-        name: '信用卡',
-        amount: 100000,
-        type: 'expense',
-        category: '日常',
-      },
-      {
-        id: '1-6',
-        name: 'iCloud',
-        amount: 450,
-        type: 'expense',
-        category: '订阅',
-      },
-      {
-        id: '1-7',
-        name: 'Cursor',
-        amount: 2800,
-        type: 'expense',
-        category: '订阅',
-      },
-      {
-        id: '1-8',
-        name: '住民税',
-        amount: 70650,
-        type: 'expense',
-        category: '税金',
-      },
-    ],
-  },
-  {
-    id: '2',
-    month: '2024-10',
-    income: 400000,
-    expense: 310000,
-    items: [
-      {
-        id: '2-1',
-        name: '工资',
-        amount: 400000,
-        type: 'income',
-        category: '收入',
-      },
-      {
-        id: '2-2',
-        name: '房租',
-        amount: 85000,
-        type: 'expense',
-        category: '住房',
-      },
-      {
-        id: '2-3',
-        name: '年金',
-        amount: 17100,
-        type: 'expense',
-        category: '保险',
-      },
-      {
-        id: '2-4',
-        name: '保险',
-        amount: 44000,
-        type: 'expense',
-        category: '保险',
-      },
-      {
-        id: '2-5',
-        name: '信用卡',
-        amount: 95000,
-        type: 'expense',
-        category: '日常',
-      },
-      {
-        id: '2-6',
-        name: 'iCloud',
-        amount: 450,
-        type: 'expense',
-        category: '订阅',
-      },
-      {
-        id: '2-7',
-        name: 'Cursor',
-        amount: 2800,
-        type: 'expense',
-        category: '订阅',
-      },
-      {
-        id: '2-8',
-        name: '住民税',
-        amount: 65650,
-        type: 'expense',
-        category: '税金',
-      },
-    ],
-  },
-];
-
 const MonthlyIncome = () => {
   // 首先计算初始选中月份
   const getInitialMonth = () => {
     const savedData = localStorage.getItem('monthlyRecords');
-    const recordsToUse = savedData ? JSON.parse(savedData) : defaultRecords;
+    // @ts-ignore
+    const recordsToUse = savedData
+      ? JSON.parse(savedData)
+      : (initialData as MonthlyRecord[]);
     if (recordsToUse.length > 0) {
       const sorted = [...recordsToUse].sort(
         (a: MonthlyRecord, b: MonthlyRecord) => b.month.localeCompare(a.month)
       );
       return sorted[0].month;
     }
-    return '2024-12';
+    return dayjs().format('YYYY-MM');
   };
 
   const [records, setRecords] = useState<MonthlyRecord[]>(() => {
     const savedData = localStorage.getItem('monthlyRecords');
-    return savedData ? JSON.parse(savedData) : defaultRecords;
+    // @ts-ignore
+    return savedData ? JSON.parse(savedData) : (initialData as MonthlyRecord[]);
   });
   const [selectedMonth, setSelectedMonth] = useState<string>(getInitialMonth());
   const [modalVisible, setModalVisible] = useState(false);
@@ -276,6 +89,47 @@ const MonthlyIncome = () => {
   );
   const [form] = Form.useForm();
   const [itemForm] = Form.useForm();
+
+  // 导出数据
+  const handleExport = () => {
+    const dataStr = JSON.stringify(records, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'data.json'; // 方便直接覆盖原文件
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // 导入数据
+  const handleImport = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const result = e.target?.result as string;
+        const importedData = JSON.parse(result);
+        if (Array.isArray(importedData)) {
+          saveData(importedData);
+          message.success('数据导入成功');
+          // 如果导入的数据中有当前选中的月份，保持选中，否则选中最新的
+          if (!importedData.find((r: any) => r.month === selectedMonth)) {
+            const sorted = [...importedData].sort((a: any, b: any) =>
+              b.month.localeCompare(a.month)
+            );
+            if (sorted.length > 0) setSelectedMonth(sorted[0].month);
+          }
+        } else {
+          message.error('数据格式不正确');
+        }
+      } catch (error) {
+        message.error('文件解析失败');
+      }
+    };
+    reader.readAsText(file);
+    return false; // 阻止默认上传
+  };
 
   // 保存数据到 localStorage
   const saveData = (newRecords: MonthlyRecord[]) => {
@@ -976,13 +830,27 @@ const MonthlyIncome = () => {
         <Card
           title="月度收支记录"
           extra={
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => openEditModal()}
-            >
-              新建月度记录
-            </Button>
+            <Space>
+              <Upload
+                beforeUpload={handleImport}
+                showUploadList={false}
+                accept=".json"
+              >
+                <Button icon={<UploadOutlined />}>导入数据</Button>
+              </Upload>
+              <Tooltip title="下载后请覆盖 packages/frontend/src/pages/MonthlyIncome/data.json 以永久保存到代码中">
+                <Button icon={<DownloadOutlined />} onClick={handleExport}>
+                  导出数据
+                </Button>
+              </Tooltip>
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => openEditModal()}
+              >
+                新建月度记录
+              </Button>
+            </Space>
           }
         >
           <Table
