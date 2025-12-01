@@ -13,6 +13,8 @@ import {
   message,
   Tag,
   Statistic,
+  Select,
+  Tooltip,
 } from 'antd';
 import {
   EditOutlined,
@@ -63,22 +65,28 @@ interface FinanceData {
 // 默认数据
 const defaultData: FinanceData = {
   subscriptions: [
-    { id: '1', name: '百度网盘', amount: '未知', cycle: '每月', currency: '¥' },
+    {
+      id: '1',
+      name: '百度网盘',
+      amount: '未知',
+      cycle: '每月',
+      currency: 'CNY',
+    },
     {
       id: '2',
       name: 'iCloud 450',
       amount: '450',
       cycle: '每月',
-      currency: '¥',
+      currency: 'JPY',
     },
-    { id: '3', name: 'Cursor', amount: '20', cycle: '每月', currency: '$' },
-    { id: '4', name: 'Amazon', amount: '未知', cycle: '每年', currency: '¥' },
+    { id: '3', name: 'Cursor', amount: '20', cycle: '每月', currency: 'USD' },
+    { id: '4', name: 'Amazon', amount: '未知', cycle: '每年', currency: 'JPY' },
     {
       id: '5',
       name: 'DC 卡（JAL 会费）',
       amount: '未知',
       cycle: '每年',
-      currency: '¥',
+      currency: 'JPY',
     },
   ],
   investments: [
@@ -145,6 +153,33 @@ const FinanceInfo = () => {
   >('subscription');
   const [editingItem, setEditingItem] = useState<any>(null);
   const [form] = Form.useForm();
+  const [exchangeRates, setExchangeRates] = useState<{ [key: string]: number }>(
+    {
+      USD: 150,
+      CNY: 20,
+      JPY: 1,
+    }
+  );
+
+  // 获取实时汇率
+  useEffect(() => {
+    fetch('https://api.exchangerate-api.com/v4/latest/JPY')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.rates) {
+          setExchangeRates({
+            USD: 1 / data.rates.USD,
+            CNY: 1 / data.rates.CNY,
+            JPY: 1,
+          });
+          console.log('汇率已更新:', data.date);
+        }
+      })
+      .catch((e) => {
+        console.error('汇率获取失败', e);
+        message.warning('汇率获取失败，将使用默认汇率');
+      });
+  }, []);
 
   // 从 localStorage 加载数据
   useEffect(() => {
@@ -231,6 +266,58 @@ const FinanceInfo = () => {
     });
   };
 
+  // 计算订阅总费用
+  const calculateSubscriptionTotal = () => {
+    let cnyMonthly = 0;
+    let cnyYearly = 0;
+    let jpyMonthly = 0;
+    let jpyYearly = 0;
+
+    data.subscriptions.forEach((sub) => {
+      if (sub.amount === '未知') return;
+      let amount = parseFloat(sub.amount.replace(/[^\d.-]/g, ''));
+      if (isNaN(amount)) amount = 0;
+
+      if (sub.currency === 'CNY' || sub.currency === 'RMB') {
+        // 人民币单独计算
+        if (sub.cycle === '每年') {
+          cnyYearly += amount;
+          cnyMonthly += amount / 12;
+        } else {
+          cnyMonthly += amount;
+          cnyYearly += amount * 12;
+        }
+      } else {
+        // 日元和美元（转日元）合并计算
+        let jpyAmount = amount;
+        if (sub.currency === 'USD' || sub.currency === '$') {
+          jpyAmount = amount * exchangeRates.USD;
+        }
+
+        if (sub.cycle === '每年') {
+          jpyYearly += jpyAmount;
+          jpyMonthly += jpyAmount / 12;
+        } else {
+          jpyMonthly += jpyAmount;
+          jpyYearly += jpyAmount * 12;
+        }
+      }
+    });
+
+    return {
+      cny: {
+        monthly: Math.round(cnyMonthly),
+        yearly: Math.round(cnyYearly),
+      },
+      jpy: {
+        monthly: Math.round(jpyMonthly),
+        yearly: Math.round(jpyYearly),
+      },
+    };
+  };
+
+  const subscriptionStats = calculateSubscriptionTotal();
+
   // 计算总支出
   const calculateTotalExpense = () => {
     let total = 0;
@@ -252,6 +339,13 @@ const FinanceInfo = () => {
 
   const totalExpense = calculateTotalExpense();
   const balance = data.income - totalExpense;
+
+  const getCurrencySymbol = (currency: string) => {
+    if (currency === 'CNY' || currency === 'RMB') return 'CN¥';
+    if (currency === 'JPY') return 'JP¥';
+    if (currency === 'USD') return '$';
+    return currency;
+  };
 
   return (
     <div className="finance-info">
@@ -313,6 +407,20 @@ const FinanceInfo = () => {
             <Space>
               <CreditCardOutlined />
               <span>已订阅服务</span>
+              <Tooltip
+                title={`参考汇率: 1 USD ≈ ${exchangeRates.USD.toFixed(2)} JPY`}
+              >
+                <Space size={4}>
+                  <Tag color="red" style={{ cursor: 'help' }}>
+                    CN¥ {subscriptionStats.cny.monthly}/月 (¥
+                    {subscriptionStats.cny.yearly}/年)
+                  </Tag>
+                  <Tag color="blue" style={{ cursor: 'help' }}>
+                    JP¥ {subscriptionStats.jpy.monthly}/月 (¥
+                    {subscriptionStats.jpy.yearly}/年)
+                  </Tag>
+                </Space>
+              </Tooltip>
             </Space>
           }
           extra={
@@ -341,7 +449,7 @@ const FinanceInfo = () => {
                       <Text strong>{sub.name}</Text>
                     </Space>
                     <Text type="secondary">
-                      {sub.currency}
+                      {getCurrencySymbol(sub.currency)}
                       {sub.amount} / {sub.cycle}
                     </Text>
                   </Space>
@@ -562,18 +670,31 @@ const FinanceInfo = () => {
                 <Form.Item
                   label="货币"
                   name="currency"
-                  rules={[{ required: true, message: '请输入货币符号' }]}
+                  rules={[{ required: true, message: '请选择货币' }]}
                 >
-                  <Input placeholder="如：¥ 或 $" />
+                  <Select placeholder="请选择货币">
+                    <Select.Option value="CNY">CNY (人民币)</Select.Option>
+                    <Select.Option value="JPY">JPY (日元)</Select.Option>
+                    <Select.Option value="USD">USD (美元)</Select.Option>
+                  </Select>
                 </Form.Item>
               )}
 
               <Form.Item
                 label="周期"
                 name="cycle"
-                rules={[{ required: true, message: '请输入周期' }]}
+                rules={[{ required: true, message: '请选择周期' }]}
               >
-                <Input placeholder="如：每月、每年、每3个月" />
+                <Select placeholder="请选择周期">
+                  <Select.Option value="每月">每月</Select.Option>
+                  <Select.Option value="每年">每年</Select.Option>
+                  {editType === 'expense' && (
+                    <Select.Option value="每3个月">每3个月</Select.Option>
+                  )}
+                  {editType === 'investment' && (
+                    <Select.Option value="灵活">灵活</Select.Option>
+                  )}
+                </Select>
               </Form.Item>
 
               <Form.Item label="备注" name="note">
